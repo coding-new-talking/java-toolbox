@@ -1,4 +1,4 @@
-package org.codingnewtalking.toolbox;
+package org.codingnewtalking.toolbox.builder;
 
 import java.util.ArrayList;
 import java.util.List;

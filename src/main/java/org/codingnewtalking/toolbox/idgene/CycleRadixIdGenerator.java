@@ -2,7 +2,7 @@ package org.codingnewtalking.toolbox.idgene;
 
 import java.util.Calendar;
 
-import org.cnt.springboot.utils.Assert;
+import org.codingnewtalking.toolbox.util.Assert;
 
 /**
  * <p>基于snowflake的实现
@@ -13,7 +13,8 @@ import org.cnt.springboot.utils.Assert;
  * <p>或多个表共享一个ID生成器
  * <p>二进制位数:[开始数值,结束数值]
  * <p>1:[0,1]，2:[0,3]，3:[0,7]，4:[0,15]，5:[0,31]，6:[0,63]，7:[0,127]，8:[0,255]，9:[0,511]，10:[0,1023]
- * <p>11:[0,2047]，12:[0,4095]，13:[0,8191]，14:[0,16383]，15:[0,32767]，16:[0,65535]，17:[0,131071]，18:[0,262143]，19:[0,524287]，20:[0,1048575]
+ * <p>11:[0,2047]，12:[0,4095]，13:[0,8191]，14:[0,16383]，15:[0,32767]，16:[0,65535]，17:[0,131071]
+ * <p>18:[0,262143]，19:[0,524287]，20:[0,1048575]
  * @author lixinjie
  * @since 2019-05-22
  */

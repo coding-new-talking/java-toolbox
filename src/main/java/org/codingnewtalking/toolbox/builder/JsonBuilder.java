@@ -1,7 +1,7 @@
-package org.codingnewtalking.toolbox;
+package org.codingnewtalking.toolbox.builder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +71,7 @@ public class JsonBuilder {
 	}
 	
 	public Map<String, Object> toMap() {
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new LinkedHashMap<>();
 		root.toMap(new MapArrayHolder(map));
 		return map;
 	}
@@ -366,7 +366,7 @@ public class JsonBuilder {
 		
 		@Override
 		public void toMap(MapArrayHolder holder) {
-			Map<String, Object> map = new HashMap<>();
+			Map<String, Object> map = new LinkedHashMap<>();
 			mapNameObject(name, map, holder);
 			mapObjectChildren(new MapArrayHolder(map));
 		}
@@ -471,7 +471,7 @@ public class JsonBuilder {
 		
 		@Override
 		public void toMap(MapArrayHolder holder) {
-			Map<String, Object> map = new HashMap<>();
+			Map<String, Object> map = new LinkedHashMap<>();
 			arrayObject(map, holder);
 			mapObjectChildren(new MapArrayHolder(map));
 		}

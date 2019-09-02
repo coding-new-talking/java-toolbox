@@ -9,17 +9,11 @@ import java.util.Random;
  */
 public class RandomUtils {
 	
-	/**
-	 * 随机整数
-	 */
 	public static final int randomInt(int lowerBound, int upperBound) {
 		return new Random().nextInt(upperBound - lowerBound) + lowerBound;
 		
 	}
 	
-	/**
-	 * 随机数字字符串
-	 */
 	public static final String randomDigit(int len) {
 		StringBuilder sb = new StringBuilder();
 		Random random = new Random();
@@ -29,18 +23,14 @@ public class RandomUtils {
 		return sb.toString();
 	}
 	
-	/**
-	 * <p>随机字母字符串
-	 * <p>upperLowerCase, true is uppercase, false is lowercase, null is mixed
-	 */
-	public static final String randomLetter(int len, Boolean upperLowerCase) {
+	public static final String randomLetter(int len, Boolean type) {
 		StringBuilder sb = new StringBuilder();
 		Random random = new Random();
-		if (upperLowerCase == null) {
+		if (type == null) {
 			for (int i = 0; i < len; i++) {
 				sb.append(MIXEDCASE_ALPHABET[random.nextInt(52)]);
 			}
-		} else if (upperLowerCase) {
+		} else if (type) {
 			for (int i = 0; i < len; i++) {
 				sb.append(UPPERCASE_ALPHABET[random.nextInt(26)]);
 			}
@@ -52,18 +42,14 @@ public class RandomUtils {
 		return sb.toString();
 	}
 	
-	/**
-	 * <p>随机数字字母字符串
-	 * <p>upperLowerCase, true is uppercase, false is lowercase, null is mixed
-	 */
-	public static final String randomString(int len, Boolean upperLowerCase) {
+	public static final String randomString(int len, Boolean type) {
 		StringBuilder sb = new StringBuilder();
 		Random random = new Random();
-		if (upperLowerCase == null) {
+		if (type == null) {
 			for (int i = 0; i < len; i++) {
 				sb.append(DIGIT_MIXEDCASE_CHARS[random.nextInt(62)]);
 			}
-		} else if (upperLowerCase) {
+		} else if (type) {
 			for (int i = 0; i < len; i++) {
 				sb.append(DIGIT_UPPERCASE_CHARS[random.nextInt(36)]);
 			}
