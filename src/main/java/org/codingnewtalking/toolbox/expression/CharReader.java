@@ -7,6 +7,8 @@ package org.codingnewtalking.toolbox.expression;
  */
 public class CharReader {
 
+	public static final char END = '\0';
+	
 	private char[] source;
 	private int length;
 	private int index;
@@ -17,17 +19,22 @@ public class CharReader {
 		this.index = 0;
 	}
 	
-	/**读取一个字符，如果到结尾则返回\0*/
+	/**读取一个字符*/
 	public char read() {
 		if (index < length) {
 			return source[index++];
 		}
-		return '\0';
+		return END;
 	}
 	
 	/**退回一个字符*/
 	public void back() {
-		index--;
+		back(1);
+	}
+	
+	/**退回n个字符*/
+	public void back(int n) {
+		index -= n;
 	}
 	
 	/**读取一个字符，但索引不前进*/
@@ -35,7 +42,7 @@ public class CharReader {
 		if (index < length) {
 			return source[index];
 		}
-		return '\0';
+		return END;
 	}
 	
 	/**跳过空白*/
