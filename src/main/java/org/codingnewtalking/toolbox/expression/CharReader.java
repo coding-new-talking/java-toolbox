@@ -12,11 +12,17 @@ public class CharReader {
 	private char[] source;
 	private int length;
 	private int index;
+	private char end;
 	
 	public CharReader(String source) {
+		this(source, END);
+	}
+	
+	public CharReader(String source, char end) {
 		this.source = source.toCharArray();
 		this.length = source.length();
 		this.index = 0;
+		this.end = end;
 	}
 	
 	/**读取一个字符*/
@@ -24,7 +30,7 @@ public class CharReader {
 		if (index < length) {
 			return source[index++];
 		}
-		return END;
+		return end;
 	}
 	
 	/**退回一个字符*/
@@ -42,7 +48,7 @@ public class CharReader {
 		if (index < length) {
 			return source[index];
 		}
-		return END;
+		return end;
 	}
 	
 	/**跳过空白*/

@@ -36,10 +36,13 @@ public class TokenReaderTest {
 	public static void main(String[] args) {
 		char[] boundaries1 = new char[] {'+', '-', '*', '/', '(', ')', ' '};
 		test1("12 + 34 - 56 * 78 / 90 * (aa + bb / (cc - dd)) + ((ee + ff) * 43)", boundaries1);
-		test1("(  a   +   b   *  (  c  +    d))", boundaries1);
+		test1("(  a   +   b   *  (  c  +    d  )  )", boundaries1);
+		test1("(aa+bb*(cc+dd))", boundaries1);
 		
 		String[] boundaries2 = new String[] {"+", "-", "*", "/", "(", ")", " ", "++", "--", "+=", "-=", "*=", "/=", "//", "((", "))"};
 		test2("aa++ + bb-- * ((aa // bb)) += (aa / bb)", boundaries2);
+		test2("aa++     +    bb--   *   ((  aa   //   bb  ))   +=    (  aa   /   bb  )", boundaries2);
+		test2("aa+++bb--*((aa//bb))+=(aa/bb)", boundaries2);
 	}
 
 }
