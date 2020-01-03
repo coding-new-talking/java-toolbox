@@ -10,24 +10,34 @@ public class TokenReader {
 	public static final char BLANK = ' ';
 	public static final char END = '\0';
 	
+	private boolean reverse;
 	private CharReader charReader;
 	private char[] charBoundaries;
 	private String[] strBoundaries;
 	private StringBuilder buffer;
 	private StringBuilder builder;
 	
-	private TokenReader(String source) {
-		this.charReader = new CharReader(source);
+	private TokenReader(String source, boolean reverse) {
+		this.reverse = reverse;
+		this.charReader = new CharReader(source, reverse);
 		this.buffer = new StringBuilder();
 	}
 	
 	public TokenReader(String source, char... boundaries) {
-		this(source);
+		this(source, false, boundaries);
+	}
+	
+	public TokenReader(String source, boolean reverse, char... boundaries) {
+		this(source, reverse);
 		this.charBoundaries = boundaries;
 	}
 	
 	public TokenReader(String source, String... boundaries) {
-		this(source);
+		this(source, false, boundaries);
+	}
+	
+	public TokenReader(String source, boolean reverse, String... boundaries) {
+		this(source, reverse);
 		this.strBoundaries = boundaries;
 		this.builder = new StringBuilder();
 	}
@@ -69,7 +79,7 @@ public class TokenReader {
 			}
 		}
 		if (buffer.length() > 0) {
-			return buffer.toString();
+			return reverse ? reverse(buffer.toString()) : buffer.toString();
 		}
 		return null;
 	}
@@ -119,7 +129,7 @@ public class TokenReader {
 			}
 		}
 		if (buffer.length() > 0) {
-			return buffer.toString();
+			return reverse ? reverse(buffer.toString()) : buffer.toString();
 		}
 		return null;
 	}
@@ -158,6 +168,14 @@ public class TokenReader {
 	}
 	
 	private boolean maybeBoundary(String str, String[] strBoundaries) {
+		if (reverse) {
+			for (int i = 0; i < strBoundaries.length; i++) {
+				if (reverseStartsWith(str, strBoundaries[i])) {
+					return true;
+				}
+			}
+			return false;
+		}
 		for (int i = 0; i < strBoundaries.length; i++) {
 			if (strBoundaries[i].startsWith(str)) {
 				return true;
@@ -167,6 +185,14 @@ public class TokenReader {
 	}
 	
 	private boolean isBoundary(String str, String[] strBoundaries) {
+		if (reverse) {
+			for (int i = 0; i < strBoundaries.length; i++) {
+				if (reverseEquals(str, strBoundaries[i])) {
+					return true;
+				}
+			}
+			return false;
+		}
 		for (int i = 0; i < strBoundaries.length; i++) {
 			if (strBoundaries[i].equals(str)) {
 				return true;
@@ -189,5 +215,46 @@ public class TokenReader {
 	
 	private boolean isBlank(String str) {
 		return str.length() == 1 && str.charAt(0) == BLANK;
+	}
+	
+	private String reverse(String str) {
+		if (str.length() < 2) {
+			return str;
+		}
+		char[] reversed = new char[str.length()];
+		for (int i = str.length() - 1, j = 0; i >= 0; i--, j++) {
+			reversed[j] = str.charAt(i);
+		}
+		return new String(reversed);
+	}
+	
+	private boolean reverseStartsWith(String str, String target) {
+		if (str.length() > target.length()) {
+			return false;
+		}
+		if (str.length() == 1) {
+			return str.charAt(0) == target.charAt(target.length() - 1);
+		}
+		for (int i = 0, j = target.length() - 1; i < str.length(); i++, j--) {
+			if (str.charAt(i) != target.charAt(j)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean reverseEquals(String str, String target) {
+		if (str.length() != target.length()) {
+			return false;
+		}
+		if (str.length() == 1) {
+			return str.charAt(0) == target.charAt(target.length() - 1);
+		}
+		for (int i = 0, j = target.length() - 1; i < str.length(); i++, j--) {
+			if (str.charAt(i) != target.charAt(j)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

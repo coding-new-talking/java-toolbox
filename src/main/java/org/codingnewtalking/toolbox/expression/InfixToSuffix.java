@@ -6,7 +6,7 @@ import org.codingnewtalking.toolbox.collection.StringStack;
  * @author lixinjie
  * @since 2019-12-31
  */
-public class ArithmeticExpression {
+public class InfixToSuffix {
 
 	public static final char[] ARITHMETIC_BOUNDARIES = new char[] {'+', '-', '*', '/', '(', ')', ' '};
 	
@@ -27,7 +27,7 @@ public class ArithmeticExpression {
 	
 	public static int priority(String operator) {
 		if (operator == null) {
-			return -10000;
+			return 0;
 		}
 		return priority(operator.charAt(0));
 	}
@@ -44,24 +44,15 @@ public class ArithmeticExpression {
 		return 0;
 	}
 	
-	public static boolean superiorTo(String laterOperator, String priorOperator) {
-		if ("(".equals(laterOperator) && "(".equals(priorOperator)) {
+	public static boolean superiorTo(String priorOperator, String laterOperator) {
+		if ("(".equals(priorOperator)) {
 			return true;
 		}
-		if (")".equals(laterOperator) && ")".equals(priorOperator)) {
+		if (")".equals(priorOperator)) {
 			return false;
 		}
-		if (!"(".equals(laterOperator) && "(".equals(priorOperator)) {
-			return true;
-		}
-		if ("(".equals(laterOperator) && !"(".equals(priorOperator)) {
-			return true;
-		}
-		if (!")".equals(laterOperator) && ")".equals(priorOperator)) {
-			return false;
-		}
-		int laterPriority = priority(laterOperator);
 		int priorPriority = priority(priorOperator);
+		int laterPriority = priority(laterOperator);
 		int diff = laterPriority - priorPriority;
 		if (diff > 0) {
 			return true;
@@ -75,19 +66,20 @@ public class ArithmeticExpression {
 	public static String popOperator(StringStack operators) {
 		String operator = "";
 		String item;
-		boolean right = false;
-		//boolean left = false;
+		int count = 0;
 		while ((item = operators.pop()) != null) {
 			if (")".equals(item)) {
-				right = true;
+				count++;
 				continue;
 			}
 			if ("(".equals(item)) {
-				//left = true;
-				break;
+				count--;
+				if (count == 0) {
+					break;
+				}
 			}
-			operator = item;
-			if (!right) {
+			operator += item;
+			if (count == 0) {
 				break;
 			}
 		}
@@ -116,7 +108,7 @@ public class ArithmeticExpression {
 		String token;
 		while ((token = reader.read()) != null) {
 			if (isOperator(token))  {
-				while (!superiorTo(token, operators.peek())) {
+				while (!superiorTo(operators.peek(), token)) {
 					suffix.append(popOperator(operators));
 				}
 				operators.push(token);
