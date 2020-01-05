@@ -1,6 +1,7 @@
 package org.codingnewtalking.toolbox.expression;
 
 import org.codingnewtalking.toolbox.collection.StringStack;
+import org.codingnewtalking.toolbox.string.StringReverseBuilder;
 
 /**
  * @author lixinjie
@@ -45,10 +46,10 @@ public class InfixToPrefix {
 	}
 	
 	public static boolean superiorTo(String priorOperator, String laterOperator) {
-		if ("(".equals(priorOperator)) {
+		if (")".equals(priorOperator)) {
 			return true;
 		}
-		if (")".equals(priorOperator)) {
+		if ("(".equals(priorOperator)) {
 			return false;
 		}
 		int priorPriority = priority(priorOperator);
@@ -60,7 +61,7 @@ public class InfixToPrefix {
 		if (diff < 0) {
 			return false;
 		}
-		return false;
+		return true;
 	}
 	
 	public static String popOperator(StringStack operators) {
@@ -68,17 +69,17 @@ public class InfixToPrefix {
 		String item;
 		int count = 0;
 		while ((item = operators.pop()) != null) {
-			if (")".equals(item)) {
+			if ("(".equals(item)) {
 				count++;
 				continue;
 			}
-			if ("(".equals(item)) {
+			if (")".equals(item)) {
 				count--;
 				if (count == 0) {
 					break;
 				}
 			}
-			operator += item;
+			operator = item + operator;
 			if (count == 0) {
 				break;
 			}
@@ -90,34 +91,34 @@ public class InfixToPrefix {
 		String operator = "";
 		String item;
 		while ((item = operators.pop()) != null) {
-			if (")".equals(item)) {
-				continue;
-			}
 			if ("(".equals(item)) {
 				continue;
 			}
-			operator += item;
+			if (")".equals(item)) {
+				continue;
+			}
+			operator = item + operator;
 		}
 		return operator;
 	}
 	
-	public static String infixToSuffix(String infix) {
-		TokenReader reader = new TokenReader(infix, ARITHMETIC_BOUNDARIES);
+	public static String infixToPrefix(String infix) {
+		TokenReader reader = new TokenReader(infix, true, ARITHMETIC_BOUNDARIES);
 		StringStack operators = new StringStack();
-		StringBuilder suffix = new StringBuilder();
+		StringReverseBuilder prefix = new StringReverseBuilder();
 		String token;
 		while ((token = reader.read()) != null) {
 			if (isOperator(token))  {
 				while (!superiorTo(operators.peek(), token)) {
-					suffix.append(popOperator(operators));
+					prefix.prepend(popOperator(operators));
 				}
 				operators.push(token);
 			} else {
-				suffix.append(token);
+				prefix.prepend(token);
 			}
 		}
-		suffix.append(popOperators(operators));
-		return suffix.toString();
+		prefix.prepend(popOperators(operators));
+		return prefix.toString();
 	}
 
 }
