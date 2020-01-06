@@ -13,41 +13,85 @@ public class TreeMirror {
 	private ObtainLeftNode oln;
 	private ObtainRightNode orn;
 	private ObtainNodeContent onc;
-	private int depth;
+	
+	private List<Object> nodeList;
+	private int treeDepth;
+	private int treeWidth;
 	
 	public TreeMirror(Object root, ObtainLeftNode oln, ObtainRightNode orn, ObtainNodeContent onc) {
 		this.root = root;
 		this.oln = oln;
 		this.orn = orn;
 		this.onc = onc;
+		this.nodeList = flattenToList(true);
 	}
 	
-	public int getDepth() {
-		return depth;
+	public int getTreeDepth() {
+		return treeDepth;
+	}
+	
+	public int getTreeWidth() {
+		return treeWidth;
+	}
+	
+	public List<Object> getNodeList() {
+		return nodeList;
 	}
 	
 	public void appear() {
-		List<Object> nodeList = flattenToList(true);
-		List<ContentWidthAdapter> contentList = new ArrayList<>(nodeList.size());
-		int[] maxWidth = new int[1];
+		List<ContentWidthAdapter> cwaList = new ArrayList<>();
+		final int[] maxWidth = {0};
+		final int[] currPoint = {0};
+		int count = 1;
+		int nth = 0;
 		for (Object node : nodeList) {
-			final String content = node != null ? onc.obtainContent(node) : "";
-			if (content.length() > maxWidth[0]) {
-				maxWidth[0] = content.length();
+			nth++;
+			final String content = node != null ? onc.obtainContent(node) : null;
+			if (content != null) {
+				final int layerNth = nth;
+				final int layerCount = count;
+				int len = content.length() * 3;
+				if (len > maxWidth[0]) {
+					maxWidth[0] = len;
+				}
+				cwaList.add(() -> {
+					int charWidth = treeWidth *  maxWidth[0];
+					int gapWidth = (charWidth - layerCount * maxWidth[0]) / ((layerCount - 1) * 2 + 2);
+					int startPoint = (layerNth * 2 - 1) * gapWidth + (layerNth - 1) * maxWidth[0];
+					int absent = startPoint - currPoint[0];
+					currPoint[0] = startPoint + maxWidth[0];
+					String adaptContent = content;
+					int less = maxWidth[0] - content.length();
+					if(less > 0) {
+						int before = less / 2;
+						int after = less - before;
+						adaptContent = getBlanks(before) + content + getBlanks(after);
+					}
+					if (layerNth == layerCount) {
+						currPoint[0] = 0;
+						return getBlanks(absent) + adaptContent + "\r\n\r\n";
+					}
+					return getBlanks(absent) + adaptContent;
+				});
+			} else {
+				if (nth == count) {
+					cwaList.add(() -> {
+						currPoint[0] = 0;
+						return "\r\n\r\n";
+					});
+				}
 			}
-			contentList.add(() -> {
-				int less = maxWidth[0] - content.length();
-				int before = less / 2;
-				int after = less - before;
-				return getBlanks(before) + content + getBlanks(after);
-			});
+			if (nth == count) {
+				count *= 2;
+				nth = 0;
+			}
 		}
-		for (ContentWidthAdapter cwa : contentList) {
-			System.out.println(cwa.adaptWidth());
+		for (ContentWidthAdapter cwa : cwaList) {
+			System.out.print(cwa.adaptWidth());
 		}
 	}
 	
-	public List<Object> flattenToList(boolean fillAbsentNodesWithNull) {
+	private List<Object> flattenToList(boolean fillAbsentNodesWithNull) {
 		List<Object> nodeList = new ArrayList<>();
 		nodeList.add(root);
 		int index = 0;
@@ -97,35 +141,33 @@ public class TreeMirror {
 		int depth = 0;
 		int count1 = 0;
 		int count2 = 0;
+		int checkIndex = 0;
 		while (true) {
-			this.depth = depth;
 			count1 = computeNodesCount(depth);
 			count2 = computeNodesCount(depth + 1);
 			if (size == count2) {
-				return count1;
+				checkIndex = count1;
+				break;
 			}
 			if (size < count2) {
-				return -1;
+				checkIndex = -1;
+				break;
 			}
 			depth++;
 		}
+		this.treeDepth = depth;
+		this.treeWidth = (int)Math.pow(2, depth);
+		return checkIndex;
 	}
 	
 	private int computeNodesCount(int depth) {
-		int layerCount = 0;
-		int totalCount = 0;
+		int count = 0;
 		int nth = 0;
 		while (nth <= depth) {
-			if (nth == 0) {
-				layerCount = 1;
-				totalCount = 1;
-			} else {
-				layerCount *= 2;
-				totalCount += layerCount;
-			}
+			count += Math.pow(2, nth);
 			nth++;
 		}
-		return totalCount;
+		return count;
 	}
 	
 	private String getBlanks(int length) {

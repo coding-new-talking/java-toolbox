@@ -32,4 +32,8 @@ public class Node {
 		return right;
 	}
 	
+	@Override
+	public String toString() {
+		return content;
+	}
 }

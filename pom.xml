@@ -24,6 +24,8 @@
 		<guava.version>22.0</guava.version>
 		<junit.version>4.12</junit.version>
 		<hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -112,4 +114,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
 </project>
