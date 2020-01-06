@@ -10,8 +10,4 @@ public class StringStack extends ArrayStack<String> {
 		super(String.class);
 	}
 
-	@Override
-	protected String mergeItems(String old, String item) {
-		return old + item;
-	}
 }

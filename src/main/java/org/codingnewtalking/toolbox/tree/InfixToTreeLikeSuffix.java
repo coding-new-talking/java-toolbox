@@ -1,9 +1,6 @@
-package org.codingnewtalking.toolbox.expression;
+package org.codingnewtalking.toolbox.tree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import org.codingnewtalking.toolbox.collection.NodeStack;
 import org.codingnewtalking.toolbox.collection.StringStack;
 import org.codingnewtalking.toolbox.string.TokenReader;
 
@@ -11,7 +8,7 @@ import org.codingnewtalking.toolbox.string.TokenReader;
  * @author lixinjie
  * @since 2019-12-31
  */
-public class InfixToPrefix {
+public class InfixToTreeLikeSuffix {
 
 	public static final char[] ARITHMETIC_BOUNDARIES = new char[] {'+', '-', '*', '/', '(', ')', ' '};
 	
@@ -50,10 +47,10 @@ public class InfixToPrefix {
 	}
 	
 	public static boolean superiorTo(String priorOperator, String laterOperator) {
-		if (")".equals(priorOperator)) {
+		if ("(".equals(priorOperator)) {
 			return true;
 		}
-		if ("(".equals(priorOperator)) {
+		if (")".equals(priorOperator)) {
 			return false;
 		}
 		int priorPriority = priority(priorOperator);
@@ -65,61 +62,66 @@ public class InfixToPrefix {
 		if (diff < 0) {
 			return false;
 		}
-		return true;
+		return false;
 	}
 	
-	public static void popOperator(StringStack operators, List<String> prefix) {
+	public static void popOperator(StringStack operators, NodeStack nodeStack) {
 		String item;
 		int count = 0;
 		while ((item = operators.pop()) != null) {
-			if ("(".equals(item)) {
+			if (")".equals(item)) {
 				count++;
 				continue;
 			}
-			if (")".equals(item)) {
+			if ("(".equals(item)) {
 				count--;
 				if (count == 0) {
 					break;
 				}
 			}
-			prefix.add(item);
+			Node right = nodeStack.pop();
+			Node left = nodeStack.pop();
+			Node operator = new Operator(item, left, right);
+			nodeStack.push(operator);
 			if (count == 0) {
 				break;
 			}
 		}
 	}
 	
-	public static void popOperators(StringStack operators, List<String> prefix) {
+	public static void popOperators(StringStack operators, NodeStack nodeStack) {
 		String item;
 		while ((item = operators.pop()) != null) {
-			if ("(".equals(item)) {
-				continue;
-			}
 			if (")".equals(item)) {
 				continue;
 			}
-			prefix.add(item);
+			if ("(".equals(item)) {
+				continue;
+			}
+			Node right = nodeStack.pop();
+			Node left = nodeStack.pop();
+			Node operator = new Operator(item, left, right);
+			nodeStack.push(operator);
 		}
 	}
 	
-	public static List<String> infixToPrefix(String infix) {
-		TokenReader reader = new TokenReader(infix, true, ARITHMETIC_BOUNDARIES);
+	public static Node infixToTree(String infix) {
+		TokenReader reader = new TokenReader(infix, ARITHMETIC_BOUNDARIES);
 		StringStack operators = new StringStack();
-		List<String> prefix = new ArrayList<>();
+		NodeStack nodeStack = new NodeStack();
 		String token;
 		while ((token = reader.read()) != null) {
 			if (isOperator(token))  {
 				while (!superiorTo(operators.peek(), token)) {
-					popOperator(operators, prefix);
+					popOperator(operators, nodeStack);
 				}
 				operators.push(token);
 			} else {
-				prefix.add(token);
+				nodeStack.push(new Operand(token));
 			}
 		}
-		popOperators(operators, prefix);
-		Collections.reverse(prefix);
-		return prefix;
+		popOperators(operators, nodeStack);
+		return nodeStack.pop();
 	}
 
 }

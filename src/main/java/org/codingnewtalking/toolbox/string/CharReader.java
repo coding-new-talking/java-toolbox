@@ -1,4 +1,4 @@
-package org.codingnewtalking.toolbox.expression;
+package org.codingnewtalking.toolbox.string;
 
 /**
  * <p>字符读取器
@@ -78,15 +78,27 @@ public class CharReader {
 	}
 	
 	/**跳过空白*/
-	public void skipBlank(char blank) {
+	public void skipBlank(char[] blanks) {
 		if (reverse) {
-			while (look() == blank) {
+			while (isBlank(look(), blanks)) {
 				index--;
 			}
 		} else {
-			while (look() == blank) {
+			while (isBlank(look(), blanks)) {
 				index++;
 			}
 		}
+	}
+	
+	private boolean isBlank(char ch, char[] blanks) {
+		if (blanks.length == 1) {
+			return ch == blanks[0];
+		}
+		for (int i = 0; i < blanks.length; i++) {
+			if (ch == blanks[i]) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

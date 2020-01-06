@@ -1,4 +1,7 @@
-package org.codingnewtalking.toolbox.expression;
+package org.codingnewtalking.toolbox.string;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>token读取器
@@ -7,19 +10,23 @@ package org.codingnewtalking.toolbox.expression;
  */
 public class TokenReader {
 
-	public static final char BLANK = ' ';
+	public static final char[] BLANKS = {' ', '\t'};
 	public static final char END = '\0';
 	
 	private boolean reverse;
+	private char[] blanks;
+	private char end;
 	private CharReader charReader;
 	private char[] charBoundaries;
 	private String[] strBoundaries;
 	private StringBuilder buffer;
 	private StringBuilder builder;
 	
-	private TokenReader(String source, boolean reverse) {
+	private TokenReader(String source, boolean reverse, char[] blanks, char end) {
 		this.reverse = reverse;
-		this.charReader = new CharReader(source, reverse);
+		this.blanks = blanks;
+		this.end = end;
+		this.charReader = new CharReader(source, reverse, end);
 		this.buffer = new StringBuilder();
 	}
 	
@@ -28,7 +35,11 @@ public class TokenReader {
 	}
 	
 	public TokenReader(String source, boolean reverse, char... boundaries) {
-		this(source, reverse);
+		this(source, reverse, BLANKS, END, boundaries);
+	}
+	
+	public TokenReader(String source, boolean reverse, char[] blanks, char end, char... boundaries) {
+		this(source, reverse, blanks, end);
 		this.charBoundaries = boundaries;
 	}
 	
@@ -37,9 +48,23 @@ public class TokenReader {
 	}
 	
 	public TokenReader(String source, boolean reverse, String... boundaries) {
-		this(source, reverse);
+		this(source, reverse, BLANKS, END, boundaries);
+	}
+	
+	public TokenReader(String source, boolean reverse, char[] blanks, char end, String... boundaries) {
+		this(source, reverse, blanks, end);
 		this.strBoundaries = boundaries;
 		this.builder = new StringBuilder();
+	}
+	
+	/**读取所有token*/
+	public List<String> readAll() {
+		List<String> tokens = new ArrayList<>();
+		String token;
+		while ((token = read()) != null) {
+			tokens.add(token);
+		}
+		return tokens;
 	}
 	
 	/**读取一个token，到达结尾则返回null*/
@@ -147,7 +172,7 @@ public class TokenReader {
 	}
 	
 	private void skipRemaindBlank() {
-		charReader.skipBlank(BLANK);
+		charReader.skipBlank(blanks);
 	}
 	
 	private void walkBack() {
@@ -202,19 +227,24 @@ public class TokenReader {
 	}
 	
 	private boolean isEnd(char ch) {
-		return ch == END;
+		return ch == end;
 	}
 	
 	private boolean isEnd(String str) {
-		return str.length() == 1 && str.charAt(0) == END;
+		return str.length() == 1 && isEnd(str.charAt(0));
 	}
 	
 	private boolean isBlank(char ch) {
-		return ch == BLANK;
+		for (int i = 0; i < blanks.length; i++) {
+			if (ch == blanks[i]) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private boolean isBlank(String str) {
-		return str.length() == 1 && str.charAt(0) == BLANK;
+		return str.length() == 1 && isBlank(str.charAt(0));
 	}
 	
 	private String reverse(String str) {

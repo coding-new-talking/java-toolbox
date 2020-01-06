@@ -1,6 +1,10 @@
 package org.codingnewtalking.toolbox.expression;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codingnewtalking.toolbox.collection.StringStack;
+import org.codingnewtalking.toolbox.string.TokenReader;
 
 /**
  * @author lixinjie
@@ -63,8 +67,7 @@ public class InfixToSuffix {
 		return false;
 	}
 	
-	public static String popOperator(StringStack operators) {
-		String operator = "";
+	public static void popOperator(StringStack operators, List<String> suffix) {
 		String item;
 		int count = 0;
 		while ((item = operators.pop()) != null) {
@@ -78,16 +81,14 @@ public class InfixToSuffix {
 					break;
 				}
 			}
-			operator += item;
+			suffix.add(item);
 			if (count == 0) {
 				break;
 			}
 		}
-		return operator;
 	}
 	
-	public static String popOperators(StringStack operators) {
-		String operator = "";
+	public static void popOperators(StringStack operators, List<String> suffix) {
 		String item;
 		while ((item = operators.pop()) != null) {
 			if (")".equals(item)) {
@@ -96,28 +97,27 @@ public class InfixToSuffix {
 			if ("(".equals(item)) {
 				continue;
 			}
-			operator += item;
+			suffix.add(item);
 		}
-		return operator;
 	}
 	
-	public static String infixToSuffix(String infix) {
+	public static List<String> infixToSuffix(String infix) {
 		TokenReader reader = new TokenReader(infix, ARITHMETIC_BOUNDARIES);
 		StringStack operators = new StringStack();
-		StringBuilder suffix = new StringBuilder();
+		List<String> suffix = new ArrayList<>();
 		String token;
 		while ((token = reader.read()) != null) {
 			if (isOperator(token))  {
 				while (!superiorTo(operators.peek(), token)) {
-					suffix.append(popOperator(operators));
+					popOperator(operators, suffix);
 				}
 				operators.push(token);
 			} else {
-				suffix.append(token);
+				suffix.add(token);
 			}
 		}
-		suffix.append(popOperators(operators));
-		return suffix.toString();
+		popOperators(operators, suffix);
+		return suffix;
 	}
 
 }

@@ -62,15 +62,6 @@ public class ArrayStack<E> implements Stack<E> {
 		return null;
 	}
 	
-	@Override
-	public E merge(E item) {
-		return peek(mergeItems(peek(), item));
-	}
-	
-	protected E mergeItems(E old, E item) {
-		return null;
-	}
-	
 	@SuppressWarnings("unchecked")
 	private E[] newArray(Class<?> itemType, int capacity) {
 		return (E[])Array.newInstance(itemType, capacity);

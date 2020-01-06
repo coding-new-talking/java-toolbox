@@ -15,6 +15,4 @@ public interface Stack<E> {
 	E peek();
 	
 	E peek(E item);
-	
-	E merge(E item);
 }
