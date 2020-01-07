@@ -8,8 +8,15 @@ public class InfixToTreeLikePrefixTest {
 
 	static void test(String infix) {
 		System.out.println(infix);
-		System.out.println(InfixToTreeLikePrefix.infixToTree(infix));
-		System.out.println("---");
+		Node root = InfixToTreeLikePrefix.infixToTree(infix);
+		TreeMirror tm = new TreeMirror(root,
+				(node) -> {return ((Node)node).getLeft();},
+				(node) -> {return ((Node)node).getRight();},
+				(node) -> {return ((Node)node).getContent();});
+		System.out.println(tm.getTreeSize());
+		System.out.println(tm.getGridSize());
+		tm.appear();
+		System.out.println();
 	}
 	
 	public static void main(String[] args) {

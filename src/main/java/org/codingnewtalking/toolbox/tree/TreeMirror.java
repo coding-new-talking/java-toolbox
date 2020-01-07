@@ -17,6 +17,8 @@ public class TreeMirror {
 	private List<Object> nodeList;
 	private int treeDepth;
 	private int treeWidth;
+	private int gridHeight;
+	private int gridWidth;
 	
 	public TreeMirror(Object root, ObtainLeftNode oln, ObtainRightNode orn, ObtainNodeContent onc) {
 		this.root = root;
@@ -24,6 +26,10 @@ public class TreeMirror {
 		this.orn = orn;
 		this.onc = onc;
 		this.nodeList = flattenToList(true);
+	}
+	
+	public List<Object> getNodeList() {
+		return nodeList;
 	}
 	
 	public int getTreeDepth() {
@@ -34,32 +40,44 @@ public class TreeMirror {
 		return treeWidth;
 	}
 	
-	public List<Object> getNodeList() {
-		return nodeList;
+	public int getGridHeight() {
+		return gridHeight;
 	}
-	
+
+	public int getGridWidth() {
+		return gridWidth;
+	}
+
 	public void appear() {
 		List<ContentWidthAdapter> cwaList = new ArrayList<>();
-		final int[] maxWidth = {0};
-		final int[] currPoint = {0};
-		int count = 1;
-		int nth = 0;
+		final int[] maxWidth = {0}; //节点内容最宽时的宽度
+		final int[] currCursor = {0}; //输出时当前光标位置
+		int layer = 0; //树的层
+		int layerCount = computeLayerCount(layer); //本层节点数
+		int totalCount = computeTotalCount(layer); //所有节点总数
+		int layerNth = 0; //第几个节点
 		for (Object node : nodeList) {
-			nth++;
+			layerNth++;
 			final String content = node != null ? onc.obtainContent(node) : null;
 			if (content != null) {
-				final int layerNth = nth;
-				final int layerCount = count;
-				int len = content.length() * 3;
-				if (len > maxWidth[0]) {
-					maxWidth[0] = len;
+				if (content.length() > maxWidth[0]) {
+					maxWidth[0] = content.length();
 				}
+				final int lineCount = layerCount;
+				final int allCount = totalCount;
+				final int lineNth = layerNth;
 				cwaList.add(() -> {
-					int charWidth = treeWidth *  maxWidth[0];
-					int gapWidth = (charWidth - layerCount * maxWidth[0]) / ((layerCount - 1) * 2 + 2);
-					int startPoint = (layerNth * 2 - 1) * gapWidth + (layerNth - 1) * maxWidth[0];
-					int absent = startPoint - currPoint[0];
-					currPoint[0] = startPoint + maxWidth[0];
+					//当前行第一个节点距离行首的宽度
+					int headGapWidth = (gridWidth - allCount) / (lineCount * 2);
+					//当前行除第一个节点外的后一个节点距离前一个节点的宽度
+					int innerGapWidth = headGapWidth * 2 + 1;
+					//当前节点在当前行的位置（一个headGap，N-1个innerGap，N-1个节点自身宽度）
+					int selfPosition = headGapWidth + (lineNth - 1) * innerGapWidth + (lineNth - 1);
+					//缺少的宽度（当前光标位置距离节点自身位置的宽度）
+					int absentWidth = selfPosition - currCursor[0];
+					//更新当前光标位置
+					currCursor[0] = selfPosition + 1;
+					//将当前节点内容补齐到最大宽度
 					String adaptContent = content;
 					int less = maxWidth[0] - content.length();
 					if(less > 0) {
@@ -67,25 +85,36 @@ public class TreeMirror {
 						int after = less - before;
 						adaptContent = getBlanks(before) + content + getBlanks(after);
 					}
-					if (layerNth == layerCount) {
-						currPoint[0] = 0;
-						return getBlanks(absent) + adaptContent + "\r\n\r\n";
+					//刷上颜色
+					adaptContent = brushColor(adaptContent);
+					String crlf = "";
+					//当前节点是本层最后一个节点
+					if (lineNth == lineCount) {
+						//光标归零
+						currCursor[0] = 0;
+						//回车换行
+						crlf = "\r\n" + getLines(gridWidth) + "\r\n";
 					}
-					return getBlanks(absent) + adaptContent;
+					return getBlanks(absentWidth * maxWidth[0]) + adaptContent + crlf;
 				});
 			} else {
-				if (nth == count) {
+				//本层最后一个节点是null
+				if (layerNth == layerCount) {
 					cwaList.add(() -> {
-						currPoint[0] = 0;
-						return "\r\n\r\n";
+						currCursor[0] = 0;
+						return "\r\n" + getLines(gridWidth) + "\r\n";
 					});
 				}
 			}
-			if (nth == count) {
-				count *= 2;
-				nth = 0;
+			//本层结束，进入下一层
+			if (layerNth == layerCount) {
+				layer++;
+				layerCount = computeLayerCount(layer);
+				totalCount = computeTotalCount(layer);
+				layerNth = 0;
 			}
 		}
+		System.out.println(getLines(gridWidth));
 		for (ContentWidthAdapter cwa : cwaList) {
 			System.out.print(cwa.adaptWidth());
 		}
@@ -143,8 +172,8 @@ public class TreeMirror {
 		int count2 = 0;
 		int checkIndex = 0;
 		while (true) {
-			count1 = computeNodesCount(depth);
-			count2 = computeNodesCount(depth + 1);
+			count1 = computeTotalCount(depth);
+			count2 = computeTotalCount(depth + 1);
 			if (size == count2) {
 				checkIndex = count1;
 				break;
@@ -156,31 +185,51 @@ public class TreeMirror {
 			depth++;
 		}
 		this.treeDepth = depth;
-		this.treeWidth = (int)Math.pow(2, depth);
+		this.treeWidth = computeLayerCount(depth);
+		this.gridHeight = treeDepth + 1;
+		this.gridWidth = treeWidth * 2 - 1;
 		return checkIndex;
 	}
 	
-	private int computeNodesCount(int depth) {
-		int count = 0;
-		int nth = 0;
-		while (nth <= depth) {
-			count += Math.pow(2, nth);
-			nth++;
-		}
-		return count;
+	private int computeTotalCount(int depth) {
+		return (int)Math.pow(2, depth + 1) - 1;
+	}
+	
+	private int computeLayerCount(int depth) {
+		return (int)Math.pow(2, depth);
 	}
 	
 	private String getBlanks(int length) {
+		return getChars(length, ' ');
+	}
+	
+	private String getLines(int length) {
+		return getChars(length, '-');
+	}
+	
+	private String getChars(int length, char ch) {
 		char[] blanks = new char[length];
 		for (int i = 0; i < blanks.length; i++) {
-			blanks[i] = ' ';
+			blanks[i] = ch;
 		}
 		return new String(blanks);
+	}
+	
+	private String brushColor(String content) {
+		return "\033[32m" + content + "\033[0m";
 	}
 	
 	@FunctionalInterface
 	interface ObtainLeftNode {
 		Object obtainLeft(Object node);
+	}
+	
+	public String getTreeSize() {
+		return "Tree: " + treeDepth + " x " + treeWidth;
+	}
+	
+	public String getGridSize() {
+		return "Grid: " + gridHeight + " x " + gridWidth;
 	}
 	
 	@FunctionalInterface

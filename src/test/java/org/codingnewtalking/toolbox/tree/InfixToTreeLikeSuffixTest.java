@@ -13,8 +13,10 @@ public class InfixToTreeLikeSuffixTest {
 				(node) -> {return ((Node)node).getLeft();},
 				(node) -> {return ((Node)node).getRight();},
 				(node) -> {return ((Node)node).getContent();});
+		System.out.println(tm.getTreeSize());
+		System.out.println(tm.getGridSize());
 		tm.appear();
-		System.out.println("---");
+		System.out.println();
 	}
 	
 	public static void main(String[] args) {
