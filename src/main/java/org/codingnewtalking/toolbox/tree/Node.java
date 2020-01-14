@@ -10,6 +10,11 @@ public class Node {
 	protected Node left;
 	protected Node right;
 	
+	//使用双向链表生成树
+	protected Node prev;
+	protected Node next;
+	protected int priority;
+	
 	protected Node(String content) {
 		this.content = content;
 	}
@@ -18,6 +23,11 @@ public class Node {
 		this(content);
 		this.left = left;
 		this.right = right;
+	}
+	
+	protected Node(String content, int priority) {
+		this.content = content;
+		this.priority = priority;
 	}
 	
 	public String getContent() {

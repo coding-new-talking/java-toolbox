@@ -13,4 +13,8 @@ public class Operator extends Node {
 	public Operator(String content, Node left, Node right) {
 		super(content, left, right);
 	}
+	
+	public Operator(String content, int priority) {
+		super(content, priority);
+	}
 }
