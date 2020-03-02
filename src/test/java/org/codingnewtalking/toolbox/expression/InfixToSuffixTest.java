@@ -17,6 +17,7 @@ public class InfixToSuffixTest {
 		test("1*2/3*4");
 		test("a+b*c/d-e");
 		test("a*b/c-d/e*f");
+		test("1+2-3*4/5");
 		test("(1+2)*(3-4)");
 		test("((1+2)*3)/(5/(6-7))");
 		test("(1+2*(3-4/(5+6*7)))+(((a-b/c)+d*e)-f*g)");
