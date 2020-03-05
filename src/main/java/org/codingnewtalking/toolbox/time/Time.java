@@ -1,12 +1,13 @@
 package org.codingnewtalking.toolbox.time;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.zone.ZoneOffsetTransition;
+import java.time.zone.ZoneRules;
 import java.time.zone.ZoneRulesProvider;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -29,10 +30,9 @@ public class Time {
 		System.out.println(ZoneOffset.ofHours(8).getId());
 		System.out.println(ZoneOffset.ofHours(-8).getId());
 		
-		ZoneId ala = ZoneId.of("America/Chicago");
-		System.out.println(ala.getId());
+		System.out.println(ZoneId.of("America/Chicago"));
 		System.out.println(LocalDateTime.now());
-		System.out.println(LocalDateTime.now(ala));
+		System.out.println(LocalDateTime.now(ZoneId.of("America/Chicago")));
 		System.out.println(LocalDateTime.now(ZoneOffset.of("-6")));
 		System.out.println(LocalDateTime.now(ZoneOffset.ofHours(-6)));
 		System.out.println();
@@ -90,7 +90,21 @@ public class Time {
 		System.out.println(zot.getDateTimeBefore());
 		System.out.println(zot.getDateTimeAfter());
 		
+		ZoneRules rules = ZoneId.of("Asia/Shanghai").getRules();
+		LocalDateTime someTime = LocalDateTime.now();
+		ZoneOffset offset = rules.getOffset(someTime);
 		
+		ZoneRules usaRules = ZoneId.of("America/Chicago").getRules();
+		LocalDateTime chinaTime = LocalDateTime.now().withNano(0);
+		
+		ZoneRules chinaRules = ZoneId.of("Asia/Shanghai").getRules();
+		ZoneOffset chinaOffset = chinaRules.getOffset(chinaTime);
+		Instant instant = chinaTime.toInstant(chinaOffset);
+		
+		ZoneOffset usaOffset = usaRules.getOffset(instant);
+		ZoneOffsetTransition china2usa = ZoneOffsetTransition.of(chinaTime, chinaOffset, usaOffset);
+		System.out.println(china2usa.getDateTimeBefore());
+		System.out.println(china2usa.getDateTimeAfter());
 	}
 
 	static String getDate(Calendar c) {
