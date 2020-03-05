@@ -13,7 +13,7 @@ public class InfixToSuffixTest {
 	}
 	
 	public static void main(String[] args) {
-		test("1+2-3+4");
+		test("(1 + 2) * (3 + 4)");
 		test("1*2/3*4");
 		test("a+b*c/d-e");
 		test("a*b/c-d/e*f");
