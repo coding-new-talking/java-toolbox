@@ -8,6 +8,7 @@ import java.time.zone.ZoneOffsetTransition;
 import java.time.zone.ZoneRules;
 import java.time.zone.ZoneRulesProvider;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -105,6 +106,15 @@ public class Time {
 		ZoneOffsetTransition china2usa = ZoneOffsetTransition.of(chinaTime, chinaOffset, usaOffset);
 		System.out.println(china2usa.getDateTimeBefore());
 		System.out.println(china2usa.getDateTimeAfter());
+		
+		Date now = new Date();
+		System.out.println(now);
+		System.out.println(now.getTime());
+		System.out.println(System.currentTimeMillis());
+		
+		Calendar before = Calendar.getInstance();
+		before.set(Calendar.YEAR, 1969);
+		System.out.println(before.getTimeInMillis());
 	}
 
 	static String getDate(Calendar c) {
