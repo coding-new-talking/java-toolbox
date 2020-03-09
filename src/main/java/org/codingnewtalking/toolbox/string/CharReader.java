@@ -10,9 +10,13 @@ public class CharReader {
 	public static final char END = '\0';
 	
 	private char[] source;
+	//逆序（倒着）读取
 	private boolean reverse;
+	//结束索引
 	private int endIndex;
+	//开始（当前）索引
 	private int index;
+	//结束时返回的字符
 	private char end;
 	
 	public CharReader(String source) {
