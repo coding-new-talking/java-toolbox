@@ -13,11 +13,14 @@ public class TokenReader {
 	public static final char[] BLANKS = {' ', '\t'};
 	public static final char END = '\0';
 	
+	//逆序读取
 	private boolean reverse;
 	private char[] blanks;
 	private char end;
 	private CharReader charReader;
+	//分界符
 	private char[] charBoundaries;
+	//分界符
 	private String[] strBoundaries;
 	private StringBuilder buffer;
 	private StringBuilder builder;
